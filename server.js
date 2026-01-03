@@ -12,5 +12,3 @@ console.log("ENV CHECK:", {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
-git commit -m "Fix: proper Render port handling"
-git push
