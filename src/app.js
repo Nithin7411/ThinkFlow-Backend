@@ -49,7 +49,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(fileUpload());
 
-// 🔥 SESSION AFTER CORS
+
 app.use(
   session({
     name: "sid",
@@ -58,16 +58,14 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      sameSite: "none",   // REQUIRED for Vercel → Render
-      secure: true,       // REQUIRED (HTTPS)
+      sameSite: "none", 
+      secure: true,  
       maxAge: 24 * 60 * 60 * 1000,
     },
   })
 );
 
-/* =======================
-   AUTH: FIREBASE LOGIN
-======================= */
+
 
 app.post("/firebase-login", async (req, res) => {
   try {
@@ -83,11 +81,11 @@ app.post("/firebase-login", async (req, res) => {
       name: decoded.name || "Anonymous",
       email: decoded.email || null,
       avatar_url: decoded.picture || null,
+      provider: decoded.firebase.sign_in_provider || "firebase",
     };
-
+ 
     const user = await req.app.locals.db.upsertUser(userData);
 
-    // 🔥 SET SESSION
     req.session.userId = user.uid;
     req.session.username = user.name;
     req.session.avatar_url = user.avatar_url;

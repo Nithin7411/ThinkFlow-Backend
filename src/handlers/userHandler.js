@@ -15,11 +15,6 @@ const getDashboard = async (req, res) => {
 
 };
 
-
-/* =======================
-   USER STORIES
-   (drafts + published)
-======================= */
 const getUserStories = async (req, res) => {
   try {
     const userId = req.session.userId;
@@ -45,9 +40,6 @@ const getUserStories = async (req, res) => {
   }
 };
 
-/* =======================
-   USER PROFILE
-======================= */
 const getProfile = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -67,9 +59,6 @@ const getProfile = async (req, res) => {
   }
 };
 
-/* =======================
-   FOLLOW AUTHOR
-======================= */
 const follow = async (req, res) => {
   try {
     const followerId = req.session.userId;
@@ -92,9 +81,6 @@ const follow = async (req, res) => {
   }
 };
 
-/* =======================
-   UNFOLLOW AUTHOR
-======================= */
 const unFollow = async (req, res) => {
   try {
     const followerId = req.session.userId;
@@ -117,9 +103,7 @@ const unFollow = async (req, res) => {
   }
 };
 
-/* =======================
-   LOGOUT
-======================= */
+
 const logout = (req, res) => {
   req.session.destroy(() => {
     res.clearCookie("sid");

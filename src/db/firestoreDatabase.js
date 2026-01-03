@@ -6,32 +6,36 @@ class FirestoreDatabase {
     this.db = db;
   }
 
-  /* ========= USERS ========= */
 
-  async upsertUser({ uid, name, email, avatar_url, provider }) {
-    const ref = this.db.collection("users").doc(uid);
-    const snap = await ref.get();
+async upsertUser({ uid, name, email, avatar_url, provider }) {
+  const ref = this.db.collection("users").doc(uid);
+  const snap = await ref.get();
 
-    if (snap.exists) {
-      await ref.update({ lastLoginAt: new Date() });
-      return snap.data();
-    }
-
-    const user = {
-      uid,
-      name,
-      email,
-      avatar_url,
-      provider,
-      createdAt: new Date(),
+  if (snap.exists) {
+    const updated = {
       lastLoginAt: new Date(),
+      provider: provider || snap.data().provider,
     };
 
-    await ref.set(user);
-    return user;
+    await ref.update(updated);
+
+    return { ...snap.data(), ...updated, uid };
   }
 
-  /* ========= STORIES ========= */
+  const user = {
+    uid,
+    name,
+    email,
+    avatar_url,
+    provider,
+    createdAt: new Date(),
+    lastLoginAt: new Date(),
+  };
+
+  await ref.set(user);
+  return user;
+}
+
 
   async saveDraft({ storyId, title, content, userId }) {
     if (!storyId) storyId = nanoid();
@@ -163,9 +167,6 @@ async publishStory(storyId, userId, tags = []) {
     }));
   }
 
-
-  /* ========= USER PROFILE ========= */
-
 async getUserDetails(userId) {
   const ref = this.db.collection("users").doc(userId);
   const snap = await ref.get();
@@ -179,7 +180,6 @@ async getUserDetails(userId) {
     ...snap.data(),
   };
 }
-/* ========= FOLLOW SYSTEM ========= */
 
 async followAuthor(followerId, authorId) {
   if (followerId === authorId) {
@@ -228,11 +228,7 @@ async getPublicDashboard(limit = 20) {
     return {
       id: doc.id,
       title: d.title,
-
-      // ✅ OLD FIELD (kept)
       authorId: d.authorId,
-
-      // ✅ NEW FIELD (added)
       author: d.author || null,
 
       views,
@@ -248,10 +244,7 @@ async getPublicDashboard(limit = 20) {
 }
 
 
-/**
- * 🔐 PERSONAL DASHBOARD (LOGGED USER)
- * Stored feed
- */
+
 async getPersonalDashboard(userId, limit = 20) {
   const snap = await this.db
     .collection("users")
@@ -267,7 +260,6 @@ async getPersonalDashboard(userId, limit = 20) {
       id: doc.id,
       ...d,
 
-      // ✅ ensure author fields exist
       authorId: d.authorId || d.author?.id || null,
       author: d.author || null,
     };
@@ -275,10 +267,7 @@ async getPersonalDashboard(userId, limit = 20) {
 }
 
 
-/**
- * 🚦 SMART DASHBOARD
- * Decides guest vs user automatically
- */
+
 async getDashboard(userId) {
   if (!userId) {
     return {
