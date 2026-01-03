@@ -1,6 +1,7 @@
 node_modules
 
 firebaseServiceKey.json
+.env
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
