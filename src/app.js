@@ -19,6 +19,8 @@ const {
   FRONT_END_URL,
 } = require("../config");
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
@@ -60,8 +62,8 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      sameSite: "lax",
-      secure: false, 
+      sameSite: isProduction ? "none" : "lax",
+      secure: isProduction,
       maxAge: 24 * 60 * 60 * 1000,
     },
   })
