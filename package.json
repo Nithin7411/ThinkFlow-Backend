@@ -1,0 +1,30 @@
+{
+  "name": "ThinkFlow-backend",
+  "version": "1.0.0",
+  "description": "Backed for ThinkFlow application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "setup-db": "node ./database/setup/resetProductionDB.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.21.1",
+    "express-fileupload": "^1.5.1",
+    "express-session": "^1.18.2",
+    "firebase-admin": "^13.6.0",
+    "http-status-codes": "^2.3.0",
+    "morgan": "^1.10.0",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "make-dir": "^5.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
+  }
+}
