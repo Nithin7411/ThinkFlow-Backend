@@ -20,6 +20,10 @@ const {
 } = require("../config");
 
 const app = express();
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://think-flow-frontend.vercel.app",
+];
 
 
 const db = new FirestoreDatabase();
@@ -32,7 +36,15 @@ app.use(morgan("dev"));
 
 app.use(
   cors({
-    origin: "https://think-flow-frontend-rkaet33cg-nithin7411s-projects.vercel.app",
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   })
 );
