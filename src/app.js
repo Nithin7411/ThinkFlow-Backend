@@ -32,7 +32,7 @@ app.use(morgan("dev"));
 
 app.use(
   cors({
-    origin: "https://thinkflow.vercel.app",
+    origin: "https://think-flow-frontend-rkaet33cg-nithin7411s-projects.vercel.app",
     credentials: true,
   })
 );
