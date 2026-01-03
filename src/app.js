@@ -14,37 +14,45 @@ const storyRouter = require("./routes/storyRouter");
 const handler = require("./handlers/commonHandler");
 const searchRoutes = require("./routes/searchRouter");
 
-const {
-  SECRET_MSG,
-  FRONT_END_URL,
-} = require("../config");
+const { SECRET_MSG, FRONT_END_URL } = require("../config");
+
+const app = express();
+
+/* =======================
+   BASIC SETUP
+======================= */
 
 const isProduction = process.env.NODE_ENV === "production";
 
-const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
   "https://think-flow-frontend.vercel.app",
 ];
 
+// 🔥 REQUIRED FOR RENDER (SECURE COOKIES BEHIND PROXY)
+app.set("trust proxy", 1);
+
+/* =======================
+   APP LOCALS
+======================= */
 
 const db = new FirestoreDatabase();
 app.locals.db = db;
 app.locals.SECRET_MSG = SECRET_MSG;
 app.locals.FRONT_END_URL = FRONT_END_URL;
 
+/* =======================
+   MIDDLEWARE ORDER (CRITICAL)
+======================= */
 
 app.use(morgan("dev"));
 
+// 🔥 CORS MUST COME BEFORE SESSION
 app.use(
   cors({
     origin: function (origin, callback) {
       if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
+      if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
@@ -54,6 +62,8 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(fileUpload());
+
+// 🔥 SESSION AFTER CORS
 app.use(
   session({
     name: "sid",
@@ -62,13 +72,16 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      sameSite:"none" ,
-      secure:true,
+      sameSite: "none",   // REQUIRED for Vercel → Render
+      secure: true,       // REQUIRED (HTTPS)
       maxAge: 24 * 60 * 60 * 1000,
     },
   })
 );
 
+/* =======================
+   AUTH: FIREBASE LOGIN
+======================= */
 
 app.post("/firebase-login", async (req, res) => {
   try {
@@ -88,12 +101,12 @@ app.post("/firebase-login", async (req, res) => {
 
     const user = await req.app.locals.db.upsertUser(userData);
 
-    // ✅ SET SESSION
+    // 🔥 SET SESSION
     req.session.userId = user.uid;
     req.session.username = user.name;
     req.session.avatar_url = user.avatar_url;
 
-    // ✅ FORCE SESSION SAVE (THIS IS THE FIX)
+    // 🔥 FORCE SESSION SAVE (ABSOLUTELY REQUIRED)
     req.session.save((err) => {
       if (err) {
         console.error("SESSION SAVE ERROR:", err);
@@ -102,23 +115,33 @@ app.post("/firebase-login", async (req, res) => {
 
       return res.json({ success: true, user });
     });
-
   } catch (err) {
     console.error("LOGIN ERROR:", err);
     res.status(500).json({ error: "Login failed" });
   }
 });
 
+/* =======================
+   STATIC
+======================= */
 
 app.use("/coverImage", express.static(`${__dirname}/../database/images`));
+
+/* =======================
+   AUTH CHECK
+======================= */
+
+app.get("/isLoggedIn", loginHandler.handlerIsLoggedIn);
+
+/* =======================
+   ROUTES
+======================= */
 
 app.get(
   "/post-login",
   handler.hasQueryParams(["code"]),
   loginHandler.handleLogin
 );
-
-app.get("/isLoggedIn", loginHandler.handlerIsLoggedIn);
 
 app.use(
   "/search",
@@ -144,5 +167,8 @@ app.get(
 app.use("/story", storyRouter);
 app.use("/user", userRouter);
 
+/* =======================
+   EXPORT
+======================= */
 
 module.exports = app;
