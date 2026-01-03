@@ -18,10 +18,6 @@ const { SECRET_MSG, FRONT_END_URL } = require("../config");
 
 const app = express();
 
-/* =======================
-   BASIC SETUP
-======================= */
-
 const isProduction = process.env.NODE_ENV === "production";
 
 const allowedOrigins = [
@@ -29,25 +25,15 @@ const allowedOrigins = [
   "https://think-flow-frontend.vercel.app",
 ];
 
-// 🔥 REQUIRED FOR RENDER (SECURE COOKIES BEHIND PROXY)
 app.set("trust proxy", 1);
-
-/* =======================
-   APP LOCALS
-======================= */
 
 const db = new FirestoreDatabase();
 app.locals.db = db;
 app.locals.SECRET_MSG = SECRET_MSG;
 app.locals.FRONT_END_URL = FRONT_END_URL;
 
-/* =======================
-   MIDDLEWARE ORDER (CRITICAL)
-======================= */
-
 app.use(morgan("dev"));
 
-// 🔥 CORS MUST COME BEFORE SESSION
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -106,7 +92,6 @@ app.post("/firebase-login", async (req, res) => {
     req.session.username = user.name;
     req.session.avatar_url = user.avatar_url;
 
-    // 🔥 FORCE SESSION SAVE (ABSOLUTELY REQUIRED)
     req.session.save((err) => {
       if (err) {
         console.error("SESSION SAVE ERROR:", err);
@@ -121,21 +106,11 @@ app.post("/firebase-login", async (req, res) => {
   }
 });
 
-/* =======================
-   STATIC
-======================= */
 
 app.use("/coverImage", express.static(`${__dirname}/../database/images`));
 
-/* =======================
-   AUTH CHECK
-======================= */
-
 app.get("/isLoggedIn", loginHandler.handlerIsLoggedIn);
 
-/* =======================
-   ROUTES
-======================= */
 
 app.get(
   "/post-login",
@@ -166,9 +141,5 @@ app.get(
 
 app.use("/story", storyRouter);
 app.use("/user", userRouter);
-
-/* =======================
-   EXPORT
-======================= */
 
 module.exports = app;
