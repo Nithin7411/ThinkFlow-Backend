@@ -84,16 +84,25 @@ app.post("/firebase-login", async (req, res) => {
       name: decoded.name || "Anonymous",
       email: decoded.email || null,
       avatar_url: decoded.picture || null,
-      provider: decoded.firebase.sign_in_provider,
     };
 
-
     const user = await req.app.locals.db.upsertUser(userData);
+
+    // ✅ SET SESSION
     req.session.userId = user.uid;
     req.session.username = user.name;
     req.session.avatar_url = user.avatar_url;
 
-    res.json({ success: true, user });
+    // ✅ FORCE SESSION SAVE (THIS IS THE FIX)
+    req.session.save((err) => {
+      if (err) {
+        console.error("SESSION SAVE ERROR:", err);
+        return res.status(500).json({ error: "Session save failed" });
+      }
+
+      return res.json({ success: true, user });
+    });
+
   } catch (err) {
     console.error("LOGIN ERROR:", err);
     res.status(500).json({ error: "Login failed" });

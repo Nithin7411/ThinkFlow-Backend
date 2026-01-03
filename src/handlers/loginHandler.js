@@ -43,7 +43,7 @@ const handlerIsLoggedIn = (req, res) => {
     return res.json({ isLoggedIn: false });
   }
 
-  res.json({
+  return res.json({
     isLoggedIn: true,
     user: {
       id: req.session.userId,
@@ -52,9 +52,6 @@ const handlerIsLoggedIn = (req, res) => {
     },
   });
 };
-
-
-
 
 module.exports = {
   handleLogin,
