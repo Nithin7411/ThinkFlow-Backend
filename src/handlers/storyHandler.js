@@ -1,6 +1,5 @@
 const { nanoid } = require("nanoid");
 
-/* ========= DRAFT ========= */
 
 const updateStory = async (req, res) => {
   try {
@@ -44,7 +43,6 @@ const deleteDraft = async (req, res) => {
   }
 };
 
-/* ========= STORY ========= */
 
 const getStory = async (req, res) => {
   try {
@@ -67,7 +65,6 @@ const getStory = async (req, res) => {
       ? data.tags.split(",").filter(Boolean)
       : [];
 
-    // 👁️ views (once per user)
     if (userId) {
       const viewRef = storyRef.collection("views").doc(userId);
       const viewSnap = await viewRef.get();
@@ -78,23 +75,21 @@ const getStory = async (req, res) => {
       }
     }
 
-    // 👏 clap state
     let isClapped = false;
     if (userId) {
       const clapSnap = await storyRef.collection("claps").doc(userId).get();
       isClapped = clapSnap.exists;
     }
 
-    // ✅ OLD RESPONSE + NEW FIELDS ADDED
     res.json({
       story: {
         id: snap.id,
         title: data.title,
         content: data.content,
 
-        // 🆕 ADDED (without breaking anything)
         authorId: data.authorId,
         author: data.author || null,
+        coverImageUrl: data.coverImageUrl || null,
 
         tags,
         publishedAt: data.publishedAt,
@@ -111,22 +106,27 @@ const getStory = async (req, res) => {
 };
 
 
-/* ========= PUBLISH ========= */
-
 const publish = async (req, res) => {
   try {
+    const { tags, coverImageUrl } = req.body;
+
+    if (!tags || !Array.isArray(tags)) {
+      return res.status(400).json({ error: "Invalid tags" });
+    }
+
     const result = await req.app.locals.db.publishStory(
       req.params.storyId,
       req.session.userId,
-      req.body.tags
+      tags,
+      coverImageUrl
     );
+
     res.json(result);
-  } catch {
+  } catch (err) {
+    console.error("PUBLISH ERROR:", err);
     res.status(400).json({ error: "Publish failed" });
   }
 };
-
-/* ========= RESPONSES ========= */
 
 const getStoryResponses = async (req, res) => {
   try {
@@ -182,8 +182,6 @@ const addResponse = async (req, res) => {
     res.status(500).json({ error: "Failed to add response" });
   }
 };
-
-/* ========= CLAP ========= */
 
 const clap = async (req, res) => {
   try {

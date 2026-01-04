@@ -95,7 +95,7 @@ async upsertUser({ uid, name, email, avatar_url, provider }) {
     await ref.delete();
   }
 
-async publishStory(storyId, userId, tags = []) {
+async publishStory(storyId, userId, tags = [], coverImageUrl) {
   const storyRef = this.db.collection("stories").doc(storyId);
   const userRef = this.db.collection("users").doc(userId);
 
@@ -104,13 +104,8 @@ async publishStory(storyId, userId, tags = []) {
     userRef.get(),
   ]);
 
-  if (!storySnap.exists) {
-    throw new Error("Story not found");
-  }
-
-  if (!userSnap.exists) {
-    throw new Error("User not found");
-  }
+  if (!storySnap.exists) throw new Error("Story not found");
+  if (!userSnap.exists) throw new Error("User not found");
 
   const story = storySnap.data();
   if (story.authorId !== userId || story.isPublished) {
@@ -118,8 +113,7 @@ async publishStory(storyId, userId, tags = []) {
   }
 
   const user = userSnap.data();
-
-  await storyRef.update({
+  const updateData = {
     isPublished: true,
     tags: Array.isArray(tags) ? tags : [],
     publishedAt: new Date(),
@@ -133,10 +127,16 @@ async publishStory(storyId, userId, tags = []) {
     views: 0,
     clapsCount: 0,
     responsesCount: 0,
-  });
+  };
+  if (coverImageUrl) {
+    updateData.coverImageUrl = coverImageUrl;
+  }
+
+  await storyRef.update(updateData);
 
   return { status: "Published", storyId };
 }
+
 
 
   async getUserDrafts(userId) {

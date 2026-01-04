@@ -1,8 +1,5 @@
 const { StatusCodes } = require("http-status-codes");
 
-/* =======================
-   VALIDATION HELPERS
-======================= */
 const hasFields = (fields) => {
   return (req, res, next) => {
     const missingFields = fields.filter(
@@ -54,9 +51,6 @@ const hasPathParams = (fields) => {
   };
 };
 
-/* =======================
-   AUTHORIZATION (FIXED)
-======================= */
 const allowAuthorized = (req, res, next) => {
   if (req.session && req.session.userId) {   // ✅ FIX
     return next();
@@ -67,9 +61,6 @@ const allowAuthorized = (req, res, next) => {
     .json({ error: "unauthorized" });
 };
 
-/* =======================
-   SEARCH (FIXED)
-======================= */
 const search = (req, res) => {
   req.app.locals.db
     .search(req.query.keyword, req.session.userId) // ✅ FIX
@@ -83,9 +74,6 @@ const search = (req, res) => {
     .catch(handleFailure(res, StatusCodes.BAD_REQUEST));
 };
 
-/* =======================
-   ERROR HANDLERS
-======================= */
 const handleFailure = (res, statusCode) => {
   return (error) => {
     console.error(error);
@@ -100,9 +88,6 @@ const handleFailureWithMessage = (res, statusCode, error) => {
   };
 };
 
-/* =======================
-   HELPERS
-======================= */
 const parseStoriesContent = (stories) => {
   return stories.map((story) => {
     story.content = JSON.parse(story.content);

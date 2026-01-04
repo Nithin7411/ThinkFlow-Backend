@@ -5,7 +5,7 @@ const search = async (req, res) => {
       return res.json({ contentBased: [] });
     }
 
-    const db = req.app.locals.db.db; // ✅ USE FIRESTORE DIRECTLY
+    const db = req.app.locals.db.db; 
 
     const snap = await db
       .collection("stories")

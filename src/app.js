@@ -2,7 +2,6 @@ const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const session = require("express-session");
-const fileUpload = require("express-fileupload");
 const { admin } = require("./db/database");
 
 const FirestoreDatabase = require("./db/firestoreDatabase");
@@ -13,6 +12,7 @@ const userRouter = require("./routes/userRouter");
 const storyRouter = require("./routes/storyRouter");
 const handler = require("./handlers/commonHandler");
 const searchRoutes = require("./routes/searchRouter");
+const uploadRoute = require("./routes/uploadRoute");
 
 const { SECRET_MSG, FRONT_END_URL } = require("../config");
 
@@ -47,7 +47,6 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
-app.use(fileUpload());
 
 
 app.use(
@@ -106,6 +105,12 @@ app.post("/firebase-login", async (req, res) => {
 
 
 app.use("/coverImage", express.static(`${__dirname}/../database/images`));
+app.use("/", uploadRoute);
+
+app.use((req, res, next) => {
+  console.log(req.method, req.url);
+  next();
+});
 
 app.get("/isLoggedIn", loginHandler.handlerIsLoggedIn);
 

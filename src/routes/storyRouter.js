@@ -2,6 +2,10 @@ const express = require("express");
 const router = express.Router();
 const storyHandler = require("../handlers/storyHandler");
 const { allowAuthorized, hasFields } = require("../handlers/commonHandler");
+const cloudinary = require("../config/cloudinary");
+const multer = require("multer");
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 /* ===== PUBLIC ===== */
 router.get("/:storyId/responses", storyHandler.getStoryResponses);

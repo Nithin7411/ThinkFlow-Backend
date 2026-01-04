@@ -1,9 +1,5 @@
 const { StatusCodes } = require("http-status-codes");
 
-/* =======================
-   DASHBOARD
-   (published stories only – as agreed)
-======================= */
 const getDashboard = async (req, res) => {
   try {
     const data = await req.app.locals.db.getDashboard(req.session.userId);
