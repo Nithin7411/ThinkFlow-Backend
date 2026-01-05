@@ -7,11 +7,9 @@ const multer = require("multer");
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-/* ===== PUBLIC ===== */
 router.get("/:storyId/responses", storyHandler.getStoryResponses);
 router.get("/:storyId", storyHandler.getStory);
 
-/* ===== AUTH ===== */
 router.use(allowAuthorized);
 
 router.put("/", hasFields(["title", "content"]), storyHandler.updateStory);

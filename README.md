@@ -1,30 +1,55 @@
-# medium backend
+# ThinkFlow – Backend
 
-## Steps to setup
+ThinkFlow Backend powers the core functionality of the ThinkFlow writing and knowledge-sharing platform.  
+It handles authentication, story management, drafts, publishing, responses, reactions, and search through a secure and scalable API.
 
-1. If you have not run `npm install` in the root of the repo, please finish that at the root level first that will take care of setting up a few things for you.
-2. Export the following environment variables
+---
 
-- `CLIENT_ID` - used for github oauth
-- `CLIENT_SECRET` - used for github oauth
-- `SECRET_MSG` - used for managing session
-- `DB_NAME="database/medium.db"` - Path to the sqlite database
-- `FRONT_END_URL="http://localhost:5173"` - URL to the front end
+## 🚀 Features
 
-3. Run `npm run setup-db` to setup the database with a mock data for stories/drafts/claps etc.
-4. Run `npm start` to start the backend
+- **Authentication**
+  - Google & GitHub OAuth (Firebase Auth)
+  - Session-based authentication
+- **User Management**
+  - Auto user creation on first login
+  - Profile storage in Firestore
+- **Stories**
+  - Create, edit, save drafts, and publish stories
+- **Responses & Reactions**
+  - Comments, claps, and engagement tracking
+- **Tags & Search**
+  - Tag-based story categorization
+  - Search APIs
+- **Secure API**
+  - CORS enabled
+  - Environment-based configs
+- **Scalable Architecture**
+  - Modular routes & handlers
+  - Clean separation of concerns
 
-## API DOCS
+---
 
-Once you start the backend, visit http://localhost:8000/api-docs to access documentation for the APIs available
+## 🛠 Tech Stack
 
-## Authentication
+- **Runtime:** Node.js  
+- **Framework:** Express.js  
+- **Database:** Firebase Firestore  
+- **Authentication:** Firebase Admin SDK  
+- **Sessions:** express-session  
+- **Logging:** Morgan  
 
-To access some of the APIs you need to be authenticated, please refer the [authentation](../frontend/README.md#authentication) from fronted.
+---
 
-## Serving static files
+## 📁 Project Structure
 
-1. Create a folder `public` in the backend
-2. Copy the generated static files such as `index.html`, `*.css`, `*.js`, `assets`.. into `public`
-3. Start the backend
-4. Open the `http://localhost:8000`
+```text
+backend/
+│── src/
+│   ├── app.js
+│   ├── handlers/
+│   ├── routes/
+│   ├── db/
+│   └── config/
+│── server.js
+│── package.json
+│── .env

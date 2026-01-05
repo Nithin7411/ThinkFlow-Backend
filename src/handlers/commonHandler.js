@@ -3,7 +3,7 @@ const { StatusCodes } = require("http-status-codes");
 const hasFields = (fields) => {
   return (req, res, next) => {
     const missingFields = fields.filter(
-      (field) => !(field in req.body)   // ✅ FIX
+      (field) => !(field in req.body)   
     );
 
     if (missingFields.length === 0) return next();
@@ -37,7 +37,7 @@ const hasQueryParams = (fields) => {
 const hasPathParams = (fields) => {
   return (req, res, next) => {
     const missingFields = fields.filter(
-      (field) => !(field in req.params) // ✅ FIX
+      (field) => !(field in req.params) 
     );
 
     if (missingFields.length === 0) return next();
@@ -52,7 +52,7 @@ const hasPathParams = (fields) => {
 };
 
 const allowAuthorized = (req, res, next) => {
-  if (req.session && req.session.userId) {   // ✅ FIX
+  if (req.session && req.session.userId) {   
     return next();
   }
 
@@ -63,7 +63,7 @@ const allowAuthorized = (req, res, next) => {
 
 const search = (req, res) => {
   req.app.locals.db
-    .search(req.query.keyword, req.session.userId) // ✅ FIX
+    .search(req.query.keyword, req.session.userId) 
     .then(({ authorBased, tagBased, contentBased }) => {
       res.json({
         authorBased: parseStoriesContent(authorBased),
