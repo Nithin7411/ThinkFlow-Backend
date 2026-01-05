@@ -210,6 +210,24 @@ async unFollowAuthor(followerId, authorId) {
   await ref.delete();
 }
 
+extractStoryPreview(content, limit = 500) {
+  if (!Array.isArray(content)) return "";
+
+  let text = "";
+
+  for (const block of content) {
+    if (block?.type === "paragraph" && block?.data?.text) {
+      const clean = block.data.text.replace(/<[^>]*>/g, "");
+      text += clean + " ";
+    }
+
+    if (text.length >= limit) break;
+  }
+
+  return text.trim().slice(0, limit);
+}
+
+
 async getPublicDashboard(limit = 20) {
   const snap = await this.db
     .collection("stories")
@@ -230,6 +248,7 @@ async getPublicDashboard(limit = 20) {
       title: d.title,
       authorId: d.authorId,
       author: d.author || null,
+      preview: this.extractStoryPreview(d.content, 500),
 
       views,
       clapsCount: claps,
@@ -245,6 +264,7 @@ async getPublicDashboard(limit = 20) {
 
 
 
+
 async getPersonalDashboard(userId, limit = 20) {
   const snap = await this.db
     .collection("users")
@@ -256,15 +276,23 @@ async getPersonalDashboard(userId, limit = 20) {
 
   return snap.docs.map(doc => {
     const d = doc.data();
+
     return {
       id: doc.id,
-      ...d,
+      title: d.title,
 
       authorId: d.authorId || d.author?.id || null,
       author: d.author || null,
+      preview: this.extractStoryPreview(d.content, 500),
+
+      views: d.views || 0,
+      clapsCount: d.clapsCount || 0,
+      responsesCount: d.responsesCount || 0,
+      publishedAt: d.publishedAt,
     };
   });
 }
+
 
 
 
